@@ -46,7 +46,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
@@ -54,6 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../development.html">Development and Poetry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_overview.html">The <code class="docutils literal notranslate"><span class="pre">jaxrts</span></code> module</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jaxrts/jaxrts">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://doi.org/10.1016/j.cpc.2026.110173">The Paper</a></li>
 </ul>
 
         </div>
@@ -161,7 +166,7 @@
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.Model.evaluate.html#jaxrts.models.Model.evaluate">[docs]</a>
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the result of the model given a :py:class:`~.PlasmaState` and a</span>
@@ -476,11 +481,45 @@
     <span class="c1">#: A list of keywords where this model is adequate for</span>
     <span class="n">allowed_keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ionic scattering&quot;</span><span class="p">]</span>
 
+    <span class="c1">#: HNC type models calculate the SSF on a k grid, and then interpolate to</span>
+    <span class="c1">#: the scattering vector of the setup class. For these models, provide a</span>
+    <span class="c1">#: Sii_on_grid method which returns the HNC result. This way, subsequent</span>
+    <span class="c1">#: calculation, e.g., for BornMermin models are notably faster.</span>
+    <span class="c1">#: This boolean flag should indicate if such a method is implemented for</span>
+    <span class="c1">#: a given Model.</span>
+    <span class="n">supports_S_ii_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="IonFeatModel.check_supports_S_ii_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IonFeatModel.check_supports_S_ii_grid.html#jaxrts.models.IonFeatModel.check_supports_S_ii_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_supports_S_ii_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether :py:meth:`S_ii_on_grid` can be used for this model, given the</span>
+<span class="sd">        current plasma_state. This allows derived models (e.g., `Sum_Sii`) to</span>
+<span class="sd">        delegate the check to the wrapped ionic_scattering model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">supports_S_ii_grid</span></div>
+
+
 <div class="viewcode-block" id="IonFeatModel.prepare">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.IonFeatModel.prepare.html#jaxrts.models.IonFeatModel.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;form-factors&quot;</span><span class="p">,</span> <span class="n">PaulingFormFactors</span><span class="p">())</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;screening&quot;</span><span class="p">,</span> <span class="n">Gregori2004Screening</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="IonFeatModel.S_ii_on_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IonFeatModel.S_ii_on_grid.html#jaxrts.models.IonFeatModel.S_ii_on_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">S_ii_on_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For `py:class:jaxrts.models.IonFeatModel` that internally calculate</span>
+<span class="sd">        S_ii a k-grid independently of the probe setup (e.g. HNC-based models)</span>
+<span class="sd">        this method should return (k_grid, S_ab_grid). Such models should</span>
+<span class="sd">        advertise `:py:attr:`~.supports_S_ii_grid` as ``False``.</span>
+<span class="sd">        This allows for BornMermin type models to not re-run the full HNC loops</span>
+<span class="sd">        on every point of the integration for the collision frequency, and</span>
+<span class="sd">        gives users quick access to S_ii(k).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
 <div class="viewcode-block" id="IonFeatModel.S_ii">
@@ -945,6 +984,7 @@
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;Wunsch.2011&quot;</span><span class="p">,</span> <span class="s2">&quot;Basis for the implementation of the HNC scheme.&quot;</span><span class="p">)</span>
     <span class="p">]</span>
+    <span class="n">supports_S_ii_grid</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="OnePotentialHNCIonFeat.__init__">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.OnePotentialHNCIonFeat.__init__.html#jaxrts.models.OnePotentialHNCIonFeat.__init__">[docs]</a>
@@ -956,6 +996,7 @@
         <span class="n">SVT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">mix</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">tmult</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cramer_solve_max_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1">#: The minimal radius for evaluating the potentials.</span>
         <span class="k">if</span> <span class="n">tmult</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -984,6 +1025,10 @@
         <span class="c1">#: See also</span>
         <span class="c1">#: :py:func:`jaxrts.hypernetted_chain.pair_distribution_function_HNC`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tmult</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmult</span>
+        <span class="c1">#: The maximum matrix size for which the direct matrix inverison sould</span>
+        <span class="c1">#: be used over `jnp.linalg.solve` in the SVT algorighm. See also</span>
+        <span class="c1">#: `:py:func:`jaxrts.helpers.cramer_solve`.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cramer_solve_max_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cramer_solve_max_size</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 
 
@@ -1012,6 +1057,16 @@
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.OnePotentialHNCIonFeat.S_ii.html#jaxrts.models.OnePotentialHNCIonFeat.S_ii">[docs]</a>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_ii_on_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OnePotentialHNCIonFeat.S_ii_on_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.OnePotentialHNCIonFeat.S_ii_on_grid.html#jaxrts.models.OnePotentialHNCIonFeat.S_ii_on_grid">[docs]</a>
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">S_ii_on_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="c1"># Prepare the Potentials</span>
         <span class="c1"># ----------------------</span>
 
@@ -1026,11 +1081,26 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">SVT</span><span class="p">:</span>
             <span class="n">masses</span> <span class="o">=</span> <span class="n">to_array</span><span class="p">([</span><span class="n">ion</span><span class="o">.</span><span class="n">atomic_mass</span> <span class="k">for</span> <span class="n">ion</span> <span class="ow">in</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">ions</span><span class="p">])</span>
             <span class="n">g</span><span class="p">,</span> <span class="n">niter</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">pair_distribution_function_SVT_HNC</span><span class="p">(</span>
-                <span class="n">V_s_r</span><span class="p">,</span> <span class="n">V_l_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmult</span>
+                <span class="n">V_s_r</span><span class="p">,</span>
+                <span class="n">V_l_k</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                <span class="n">T</span><span class="p">,</span>
+                <span class="n">n</span><span class="p">,</span>
+                <span class="n">masses</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tmult</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cramer_solve_max_size</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">g</span><span class="p">,</span> <span class="n">niter</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">pair_distribution_function_HNC</span><span class="p">(</span>
-                <span class="n">V_s_r</span><span class="p">,</span> <span class="n">V_l_k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmult</span>
+                <span class="n">V_s_r</span><span class="p">,</span>
+                <span class="n">V_l_k</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                <span class="n">T</span><span class="p">,</span>
+                <span class="n">n</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tmult</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cramer_solve_max_size</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">niter</span><span class="si">}</span><span class="s2"> Iterations of the HNC algorithm were required to reach the solution&quot;</span>  <span class="c1"># noqa: E501</span>
@@ -1038,12 +1108,7 @@
         <span class="c1"># Calculate S_ab by Fourier-transforming g_ab</span>
         <span class="c1"># ---------------------------------------------</span>
         <span class="n">S_ab_HNC</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">S_ii_HNC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
-
-        <span class="c1"># Interpolate this to the k given by the setup</span>
-
-        <span class="n">S_ab</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">S_ab</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span></div>
 
 
     <span class="c1"># The following is required to jit a Model</span>
@@ -1053,13 +1118,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model_key</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pot</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">SVT</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cramer_solve_max_size</span><span class="p">,</span>
         <span class="p">)</span>  <span class="c1"># static values</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">aux_data</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_tree_unflatten</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aux_data</span><span class="p">,</span> <span class="n">children</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
-        <span class="n">obj</span><span class="o">.</span><span class="n">model_key</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">pot</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">SVT</span> <span class="o">=</span> <span class="n">aux_data</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">model_key</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">pot</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">SVT</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">cramer_solve_max_size</span> <span class="o">=</span> <span class="n">aux_data</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">r_min</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">r_max</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">mix</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">tmult</span> <span class="o">=</span> <span class="n">children</span>
 
         <span class="k">return</span> <span class="n">obj</span></div>
@@ -1089,7 +1155,7 @@
 <span class="sd">        - an &#39;ion-ion Potential&#39; The black entries in the picture below</span>
 <span class="sd">          (defaults to :py:class:`~CoulombPotential`).</span>
 <span class="sd">        - an &#39;electron-ion Potential&#39; The orange entries in the picture below</span>
-<span class="sd">          (defaults to :py:class:`~KlimontovichKraeftPotential`).</span>
+<span class="sd">          (defaults to :py:class:`~CoulombPotential`).</span>
 <span class="sd">        - an &#39;electron-electron Potential&#39; The red entries in the picture below</span>
 <span class="sd">          (defaults to :py:class:`~KelbgPotental`).</span>
 
@@ -1114,6 +1180,7 @@
         <span class="p">),</span>
         <span class="p">(</span><span class="s2">&quot;Wunsch.2011&quot;</span><span class="p">,</span> <span class="s2">&quot;Basis for the implementation of the HNC scheme.&quot;</span><span class="p">),</span>
     <span class="p">]</span>
+    <span class="n">supports_S_ii_grid</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="ThreePotentialHNCIonFeat.__init__">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.ThreePotentialHNCIonFeat.__init__.html#jaxrts.models.ThreePotentialHNCIonFeat.__init__">[docs]</a>
@@ -1167,7 +1234,7 @@
         <span class="p">)</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span><span class="p">,</span>
-            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">KlimontovichKraeftPotential</span><span class="p">(),</span>
+            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">CoulombPotential</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;electron-electron Potential&quot;</span><span class="p">,</span>
@@ -1196,6 +1263,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_S_ii_with_electrons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_ii_with_electrons_on_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span><span class="p">)</span>
+
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_S_ii_with_electrons_on_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="c1"># Prepare the Potentials</span>
         <span class="c1"># ----------------------</span>
 
@@ -1272,11 +1346,17 @@
         <span class="c1"># Calculate S_ab by Fourier-transforming g_ab</span>
         <span class="c1"># ---------------------------------------------</span>
         <span class="n">S_ab_HNC</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">S_ii_HNC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span>
 
-        <span class="c1"># Interpolate this to the k given by the setup</span>
+<div class="viewcode-block" id="ThreePotentialHNCIonFeat.S_ii_on_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.ThreePotentialHNCIonFeat.S_ii_on_grid.html#jaxrts.models.ThreePotentialHNCIonFeat.S_ii_on_grid">[docs]</a>
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">S_ii_on_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">S_ab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_S_ii_with_electrons_on_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">S_ab</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
-        <span class="n">S_ab</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">S_ab</span>
 
 <div class="viewcode-block" id="ThreePotentialHNCIonFeat.S_ii">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.ThreePotentialHNCIonFeat.S_ii.html#jaxrts.models.ThreePotentialHNCIonFeat.S_ii">[docs]</a>
@@ -1915,19 +1995,7 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dispersion_corrected_k</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">n_e</span><span class="p">)</span>
         <span class="n">See_0</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">S0_ee_BMA</span><span class="p">(</span>
             <span class="n">k</span><span class="p">,</span>
@@ -1965,20 +2033,8 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">k</span>
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">chi</span><span class="p">(</span><span class="n">energy</span><span class="p">):</span>
             <span class="n">eps</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">dielectric_function_BMA_full</span><span class="p">(</span>
@@ -2027,6 +2083,51 @@
 
         <span class="k">return</span> <span class="n">obj</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_cached_S_ii</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    If the ionic scattering model supports an Sii_grid calculation, run the</span>
+<span class="sd">    expensive part of &#39;BM S_ii&#39; once and return a cheap S_ii(k) closure.</span>
+<span class="sd">    Otherwise, evaluate the static structure factor anew, each time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bm_sii_model</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">bm_sii_model</span><span class="o">.</span><span class="n">check_supports_S_ii_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">):</span>
+        <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span> <span class="o">=</span> <span class="n">bm_sii_model</span><span class="o">.</span><span class="n">S_ii_on_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
+
+        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span>
+                    <span class="n">k</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">angstrom</span><span class="p">),</span>
+                    <span class="n">k_grid</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">angstrom</span><span class="p">),</span>
+                    <span class="n">S_ab_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span>
+                <span class="p">)</span>
+                <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S_ii</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate inputs required for all BM models</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">S_ii</span> <span class="o">=</span> <span class="n">_build_cached_S_ii</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span><span class="p">)</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span>
 
 
 <div class="viewcode-block" id="BornMermin">
@@ -2199,19 +2300,7 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dispersion_corrected_k</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">n_e</span><span class="p">)</span>
         <span class="n">See_0</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">S0_ee_BMA_chapman_interp</span><span class="p">(</span>
             <span class="n">k</span><span class="p">,</span>
@@ -2252,20 +2341,7 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">k</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">chi</span><span class="p">(</span><span class="n">energy</span><span class="p">):</span>
@@ -2505,20 +2581,9 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dispersion_corrected_k</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">n_e</span><span class="p">)</span>
+
         <span class="n">See_0</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">S0_ee_BMA_chapman_interpFit</span><span class="p">(</span>
             <span class="n">k</span><span class="p">,</span>
             <span class="n">plasma_state</span><span class="o">.</span><span class="n">T_e</span><span class="p">,</span>
@@ -2558,19 +2623,7 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">k</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">chi</span><span class="p">(</span><span class="n">energy</span><span class="p">):</span>
@@ -2812,20 +2865,8 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dispersion_corrected_k</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">n_e</span><span class="p">)</span>
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
         <span class="n">See_0</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">S0_ee_BMA_Fortmann</span><span class="p">(</span>
             <span class="n">k</span><span class="p">,</span>
             <span class="n">plasma_state</span><span class="o">.</span><span class="n">T_e</span><span class="p">,</span>
@@ -2865,21 +2906,8 @@
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">S_ii</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="n">probe_setup</span> <span class="o">=</span> <span class="n">get_probe_setup</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;BM S_ii&quot;</span><span class="p">,</span> <span class="n">probe_setup</span><span class="p">)</span>
-
-        <span class="nd">@jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">Partial</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">V_eiS</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;BM V_eiS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-
-        <span class="n">mu</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;chemical potential&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="n">S_ii</span><span class="p">,</span> <span class="n">V_eiS</span><span class="p">,</span> <span class="n">mean_Z_free</span><span class="p">,</span> <span class="n">mu</span> <span class="o">=</span> <span class="n">_prepare_BM</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">k</span>
-
-        <span class="n">mean_Z_free</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">plasma_state</span><span class="o">.</span><span class="n">Z_free</span> <span class="o">*</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="p">)</span>
         <span class="n">xi</span> <span class="o">=</span> <span class="n">free_free</span><span class="o">.</span><span class="n">susceptibility_BMA_Fortmann</span><span class="p">(</span>
             <span class="n">k</span><span class="p">,</span>
             <span class="n">E</span><span class="p">,</span>
@@ -2998,7 +3026,8 @@
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.SchumacherImpulse.prepare.html#jaxrts.models.SchumacherImpulse.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;form-factors&quot;</span><span class="p">,</span> <span class="n">PaulingFormFactors</span><span class="p">())</span>
-        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;ipd&quot;</span><span class="p">,</span> <span class="n">Neglect</span><span class="p">())</span></div>
+        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;ipd&quot;</span><span class="p">,</span> <span class="n">Neglect</span><span class="p">())</span>
+        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;bf edge&quot;</span><span class="p">,</span> <span class="n">Heaviside</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="SchumacherImpulse.evaluate_raw">
@@ -3062,9 +3091,14 @@
                 <span class="c1"># Hence set it to unity, here</span>
                 <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span>
                 <span class="n">factor</span> <span class="o">=</span> <span class="n">r_k</span> <span class="o">/</span> <span class="p">(</span><span class="n">Z_core</span> <span class="o">*</span> <span class="n">B</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span>
-                <span class="n">sbe</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">bound_free</span><span class="o">.</span><span class="n">J_impulse_approx</span><span class="p">(</span>
-                    <span class="n">omega</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">Zeff</span><span class="p">,</span> <span class="n">E_b</span>
+
+                <span class="n">impuse_approx</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">bound_free</span><span class="o">.</span><span class="n">J_impulse_approx</span><span class="p">(</span>
+                    <span class="n">omega</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">Zeff</span>
                 <span class="p">)</span>
+                <span class="n">edge</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">E</span><span class="p">:</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;bf edge&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+                <span class="p">)(</span><span class="n">E_b</span><span class="p">)</span>
+                <span class="n">sbe</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">impuse_approx</span> <span class="o">*</span> <span class="n">edge</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="n">sbe</span> <span class="o">*</span> <span class="n">Z_core</span>
                 <span class="k">return</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="n">jnp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">)),</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">,</span> <span class="n">val</span>
@@ -3195,7 +3229,8 @@
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.SchumacherImpulseColdEdges.prepare.html#jaxrts.models.SchumacherImpulseColdEdges.prepare">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;form-factors&quot;</span><span class="p">,</span> <span class="n">PaulingFormFactors</span><span class="p">())</span>
-        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;ipd&quot;</span><span class="p">,</span> <span class="n">Neglect</span><span class="p">())</span></div>
+        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;ipd&quot;</span><span class="p">,</span> <span class="n">Neglect</span><span class="p">())</span>
+        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;bf edge&quot;</span><span class="p">,</span> <span class="n">Heaviside</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="SchumacherImpulseColdEdges.evaluate_raw">
@@ -3249,9 +3284,14 @@
             <span class="c1"># Hence set it to unity, here</span>
             <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span>
             <span class="n">factor</span> <span class="o">=</span> <span class="n">r_k</span> <span class="o">/</span> <span class="p">(</span><span class="n">Z_c</span> <span class="o">*</span> <span class="n">B</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span>
-            <span class="n">sbe</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">bound_free</span><span class="o">.</span><span class="n">J_impulse_approx</span><span class="p">(</span>
-                <span class="n">omega</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">Zeff</span><span class="p">,</span> <span class="n">E_b</span>
+            <span class="n">impuse_approx</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">bound_free</span><span class="o">.</span><span class="n">J_impulse_approx</span><span class="p">(</span>
+                <span class="n">omega</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">Zeff</span>
             <span class="p">)</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">E</span><span class="p">:</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;bf edge&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">,</span> <span class="n">E</span><span class="p">)</span>
+            <span class="p">)(</span><span class="n">E_b</span><span class="p">)</span>
+
+            <span class="n">sbe</span> <span class="o">=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">impuse_approx</span> <span class="o">*</span> <span class="n">edge</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">sbe</span> <span class="o">*</span> <span class="n">Z_c</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">out</span> <span class="o">+=</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                 <span class="n">jnp</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">)),</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">second</span><span class="p">,</span> <span class="n">val</span>
@@ -3323,7 +3363,8 @@
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;ipd&quot;</span><span class="p">,</span> <span class="n">Neglect</span><span class="p">())</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;free-free scattering&quot;</span><span class="p">,</span> <span class="n">RPA_DandreaFit</span><span class="p">()</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span><span class="s2">&quot;bf edge&quot;</span><span class="p">,</span> <span class="n">Heaviside</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="SchumacherImpulseFitRk.r_k">
@@ -3876,14 +3917,73 @@
 <span class="c1"># ======================================</span>
 
 
+<div class="viewcode-block" id="IPDModel">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDModel.html#jaxrts.models.IPDModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IPDModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A subset of :py:class:`Model`&#39;s, to model the effect of ionization</span>
+<span class="sd">    potential depression. These models have to implement a</span>
+<span class="sd">    :py:meth:`~.all_element_states` method, returning the appropriate IPD for</span>
+<span class="sd">    all ionization states of the constituents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="IPDModel.all_element_states">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDModel.all_element_states.html#jaxrts.models.IPDModel.all_element_states">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_element_states</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">ion_population</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the IPD for each possible ionization state for the constituents</span>
+<span class="sd">        of the plasma, assuming the average plasma conditions are given by the</span>
+<span class="sd">        passed ``plasma_state``. Can optionally be handed the argument</span>
+<span class="sd">        ``ion_population`` to not only operate on average quantities, but over</span>
+<span class="sd">        the whole distribution of elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plasma_state: PlasmaState</span>
+<span class="sd">            The plasma state containing the average plasma properties</span>
+<span class="sd">        ion_population, optional</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[jnp.ndarray]</span>
+<span class="sd">            A list with an entry for each element in</span>
+<span class="sd">            :py:attr:`jaxrts.plasmastate.PlasmaState.ions`. The entry contains</span>
+<span class="sd">            the IPD for each possible ionization process of the ion, starting</span>
+<span class="sd">            by 0 to :py:attr:`jaxrts.elements.Element.Z` - 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;IPDSum&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">IPDModel</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;You can only add other IPDModel to an IPDModel.&quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Other is type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">IPDSum</span><span class="p">):</span>
+            <span class="n">list_of_ipds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_of_ipds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">list_of_ipds</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">IPDSum</span><span class="p">):</span>
+            <span class="n">list_of_ipds</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">list_of_ipds</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">list_of_ipds</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">list_of_ipds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">IPDSum</span><span class="p">(</span><span class="n">list_of_ipds</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="ConstantIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.ConstantIPD.html#jaxrts.models.ConstantIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ConstantIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConstantIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A model that returns a constant value for the IPD, set by the user.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;ConstantIPD&quot;</span>
 
 <div class="viewcode-block" id="ConstantIPD.__init__">
@@ -3940,7 +4040,7 @@
 
 <div class="viewcode-block" id="DebyeHueckelIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.DebyeHueckelIPD.html#jaxrts.models.DebyeHueckelIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DebyeHueckelIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DebyeHueckelIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Debye-Hückel IPD Model :cite:`Debye.1923`.</span>
 <span class="sd">    The Debye-Hückel Model is applicable for low-density and high-temperature</span>
@@ -3956,7 +4056,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;DebyeHueckel&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Debye.1923&quot;</span><span class="p">,</span> <span class="s2">&quot;Crowley.2014&quot;</span><span class="p">]</span>
 
@@ -4025,7 +4124,7 @@
 
 <div class="viewcode-block" id="StewartPyattPrestonIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.StewartPyattPrestonIPD.html#jaxrts.models.StewartPyattPrestonIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">StewartPyattPrestonIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StewartPyattPrestonIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Stewart Pyatt IPD Model :cite:`Stewart.1966`.</span>
 <span class="sd">    The Stewart–Pyatt model interpolates between the</span>
@@ -4051,7 +4150,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;StewartPyatt&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stewart.1966&quot;</span><span class="p">,</span> <span class="s2">&quot;Preston.2013&quot;</span><span class="p">,</span> <span class="s2">&quot;Crowley.2014&quot;</span><span class="p">]</span>
 
@@ -4126,7 +4224,7 @@
 
 <div class="viewcode-block" id="StewartPyattIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.StewartPyattIPD.html#jaxrts.models.StewartPyattIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">StewartPyattIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StewartPyattIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Stewart Pyatt IPD Model :cite:`Stewart.1966`.</span>
 <span class="sd">    The Stewart–Pyatt model interpolates between the Debye–Hückel</span>
@@ -4143,7 +4241,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;StewartPyatt&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Stewart.1966&quot;</span><span class="p">,</span> <span class="s2">&quot;Ropke.2019&quot;</span><span class="p">,</span> <span class="s2">&quot;Calisti.2015&quot;</span><span class="p">]</span>
 
@@ -4212,7 +4309,7 @@
 
 <div class="viewcode-block" id="IonSphereIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.IonSphereIPD.html#jaxrts.models.IonSphereIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">IonSphereIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IonSphereIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ion Sphere IPD Model :cite:`Rozsnyai.1972`.</span>
 
@@ -4236,7 +4333,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;IonSphere&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Rozsnyai.1972&quot;</span><span class="p">,</span> <span class="s2">&quot;Zimmermann.1980&quot;</span><span class="p">,</span> <span class="s2">&quot;Crowley.2014&quot;</span><span class="p">]</span>
 
@@ -4305,7 +4401,7 @@
 
 <div class="viewcode-block" id="EckerKroellIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.EckerKroellIPD.html#jaxrts.models.EckerKroellIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EckerKroellIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EckerKroellIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ecker-Kröll IPD Model::cite:`EckerKroell.1963`.</span>
 
@@ -4333,7 +4429,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;EckerKroell&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;EckerKroell.1963&quot;</span><span class="p">,</span>
@@ -4417,7 +4512,7 @@
 
 <div class="viewcode-block" id="PauliBlockingIPD">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.PauliBlockingIPD.html#jaxrts.models.PauliBlockingIPD">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PauliBlockingIPD</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PauliBlockingIPD</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pauli Blocking IPD Model :cite:`Ropke.2019`.</span>
 
@@ -4433,7 +4528,6 @@
 <span class="sd">        Function used to calculate the IPD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ipd&quot;</span><span class="p">]</span>
     <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;PauliBlocking&quot;</span>
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Ropke.2019&quot;</span><span class="p">]</span>
 
@@ -4475,6 +4569,77 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 </div>
+
+
+
+<div class="viewcode-block" id="IPDSum">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDSum.html#jaxrts.models.IPDSum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IPDSum</span><span class="p">(</span><span class="n">IPDModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A sum of several ipd :py:class:`~.Model` s. Can be used e.g., to combine</span>
+<span class="sd">    :py:class:`~.PauliBlockingIPD` with another IPD model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;IPDSum&quot;</span>
+
+<div class="viewcode-block" id="IPDSum.__init__">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDSum.__init__.html#jaxrts.models.IPDSum.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_ipds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Model</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        list_of_ipds: list[Model]</span>
+<span class="sd">           A list of the IPD :py:class:`~.Model` to be added up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list_of_ipds</span> <span class="o">=</span> <span class="n">list_of_ipds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="IPDSum.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDSum.evaluate.html#jaxrts.models.IPDSum.evaluate">[docs]</a>
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">electron_volt</span>
+        <span class="k">for</span> <span class="n">ipd_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_of_ipds</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">ipd_model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="IPDSum.all_element_states">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.IPDSum.all_element_states.html#jaxrts.models.IPDSum.all_element_states">[docs]</a>
+    <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_element_states</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span>
+        <span class="n">ion_population</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="n">individual_ipd_output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ipd_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_of_ipds</span><span class="p">:</span>
+            <span class="n">individual_ipd_output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ipd_model</span><span class="o">.</span><span class="n">all_element_states</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">ion_population</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">individual_ipd_output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">individual_ipd_output</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">individual_ipd_output</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tree_flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list_of_ipds</span><span class="p">,)</span>
+        <span class="n">aux_data</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_key</span><span class="p">,)</span>  <span class="c1"># static values</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">aux_data</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tree_unflatten</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">aux_data</span><span class="p">,</span> <span class="n">children</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">model_key</span><span class="p">,)</span> <span class="o">=</span> <span class="n">aux_data</span>
+        <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">list_of_ipds</span><span class="p">,)</span> <span class="o">=</span> <span class="n">children</span>
+
+        <span class="k">return</span> <span class="n">obj</span></div>
 
 
 
@@ -4649,7 +4814,7 @@
 <span class="sd">    used, and V_{ee} the Coulomb potential.</span>
 
 <span class="sd">    Requires an &#39;electron-ion&#39; potential. (defaults to</span>
-<span class="sd">    :py:class:`~KlimontovichKraeftPotential`).</span>
+<span class="sd">    :py:class:`~CoulombPotential`).</span>
 
 
 <span class="sd">    .. note::</span>
@@ -4674,7 +4839,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span><span class="p">,</span>
-            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">KlimontovichKraeftPotential</span><span class="p">(),</span>
+            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">CoulombPotential</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">plasma_state</span><span class="p">[</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span>
@@ -4835,7 +5000,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span><span class="p">,</span>
-            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">KlimontovichKraeftPotential</span><span class="p">(),</span>
+            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">CoulombPotential</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">plasma_state</span><span class="p">[</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span>
@@ -4941,7 +5106,7 @@
 <span class="sd">    :py:class:`~.RPA_DandreaFit`.</span>
 
 <span class="sd">    Requires an &#39;electron-ion&#39; potential. (defaults to</span>
-<span class="sd">    :py:class:`~KlimontovichKraeftPotential`).</span>
+<span class="sd">    :py:class:`~CoulombPotential`).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;screening&quot;</span><span class="p">]</span>
@@ -4953,7 +5118,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plasma_state</span><span class="o">.</span><span class="n">update_default_model</span><span class="p">(</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span><span class="p">,</span>
-            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">KlimontovichKraeftPotential</span><span class="p">(),</span>
+            <span class="n">hnc_potentials</span><span class="o">.</span><span class="n">CoulombPotential</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">plasma_state</span><span class="p">[</span>
             <span class="s2">&quot;electron-ion Potential&quot;</span>
@@ -5510,6 +5675,42 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Sum_Sii.check_supports_S_ii_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Sum_Sii.check_supports_S_ii_grid.html#jaxrts.models.Sum_Sii.check_supports_S_ii_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_supports_S_ii_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;ionic scattering&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">check_supports_S_ii_grid</span><span class="p">(</span>
+            <span class="n">plasma_state</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_combine_S_ab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">S_ab</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number-fraction-weighted sum of per-species-pair static structure</span>
+<span class="sd">        factor S_ab (shape (nions, nions, ...)) into a single combined S_ii.</span>
+<span class="sd">        Shared by both grid and direct evaluation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
+        <span class="n">S_ii</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">jnpu</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">b</span><span class="p">])</span> <span class="o">*</span> <span class="n">S_ab</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)[</span>
+                <span class="n">jnp</span><span class="o">.</span><span class="n">newaxis</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">nions</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">nions</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">S_ii</span>
+
+<div class="viewcode-block" id="Sum_Sii.S_ii_on_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Sum_Sii.S_ii_on_grid.html#jaxrts.models.Sum_Sii.S_ii_on_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">S_ii_on_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">):</span>
+        <span class="c1"># Only ever called after check_supports_S_ii_grid() returned True,</span>
+        <span class="c1"># so this is safe.</span>
+        <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;ionic scattering&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">S_ii_on_grid</span><span class="p">(</span>
+            <span class="n">plasma_state</span>
+        <span class="p">)</span>
+        <span class="n">S_ii_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_S_ab</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">S_ab_grid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ii_grid</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span></div>
+
+
 <div class="viewcode-block" id="Sum_Sii.evaluate">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.Sum_Sii.evaluate.html#jaxrts.models.Sum_Sii.evaluate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
@@ -5520,24 +5721,7 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">S_ab</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="p">[</span><span class="s2">&quot;ionic scattering&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">S_ii</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">setup</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">plasma_state</span><span class="o">.</span><span class="n">number_fraction</span>
-        <span class="c1"># Add the contributions from all pairs</span>
-        <span class="n">S_ii</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">add_Sii</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">jnpu</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">b</span><span class="p">])</span> <span class="o">*</span> <span class="n">S_ab</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span>
-                <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span>
-            <span class="p">)[</span><span class="n">jnp</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-
-        <span class="c1"># The W_R is calculated as a sum over all combinations of a_b</span>
-        <span class="n">ion_spec1</span><span class="p">,</span> <span class="n">ion_spec2</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
-            <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">nions</span><span class="p">),</span>
-            <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">nions</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="n">ion_spec1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">ion_spec2</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">):</span>
-            <span class="n">S_ii</span> <span class="o">+=</span> <span class="n">add_Sii</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">S_ii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combine_S_ab</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">,</span> <span class="n">S_ab</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">S_ii</span></div>
 </div>
 
@@ -5557,6 +5741,7 @@
     <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;Wunsch.2011&quot;</span><span class="p">,</span> <span class="s2">&quot;Basis for the implementation of the HNC scheme.&quot;</span><span class="p">)</span>
     <span class="p">]</span>
+    <span class="n">supports_S_ii_grid</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="AverageAtom_Sii.__init__">
 <a class="viewcode-back" href="../../_autosummary/jaxrts.models.AverageAtom_Sii.__init__.html#jaxrts.models.AverageAtom_Sii.__init__">[docs]</a>
@@ -5608,6 +5793,17 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="AverageAtom_Sii.check_supports_S_ii_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.AverageAtom_Sii.check_supports_S_ii_grid.html#jaxrts.models.AverageAtom_Sii.check_supports_S_ii_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_supports_S_ii_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether :py:meth:`S_ii_on_grid` can be used for this model, given the</span>
+<span class="sd">        current plasma_state. This allows derived models (e.g., `Sum_Sii`) to</span>
+<span class="sd">        delegate the check to the wrapped ionic_scattering model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">supports_S_ii_grid</span></div>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">jnpu</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">r_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_max</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">pot</span><span class="p">)</span>
@@ -5619,12 +5815,10 @@
         <span class="n">dk</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">dr</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="o">*</span> <span class="n">dk</span>
 
-<div class="viewcode-block" id="AverageAtom_Sii.evaluate">
-<a class="viewcode-back" href="../../_autosummary/jaxrts.models.AverageAtom_Sii.evaluate.html#jaxrts.models.AverageAtom_Sii.evaluate">[docs]</a>
+<div class="viewcode-block" id="AverageAtom_Sii.S_ii_on_grid">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.AverageAtom_Sii.S_ii_on_grid.html#jaxrts.models.AverageAtom_Sii.S_ii_on_grid">[docs]</a>
     <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">S_ii_on_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="c1"># Average the Plasma State</span>
         <span class="n">aaState</span> <span class="o">=</span> <span class="n">averagePlasmaState</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
 
@@ -5649,11 +5843,20 @@
         <span class="c1"># ---------------------------------------------</span>
         <span class="n">S_ab_HNC</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">S_ii_HNC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
 
-        <span class="c1"># Interpolate this to the k given by the setup</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span></div>
 
-        <span class="n">S_ab</span> <span class="o">=</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">S_ab_HNC</span><span class="p">)</span>
-        <span class="c1"># Return the Sii with the correct shape</span>
-        <span class="k">return</span> <span class="n">S_ab</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AverageAtom_Sii.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.AverageAtom_Sii.evaluate.html#jaxrts.models.AverageAtom_Sii.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span>
+        <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_ii_on_grid</span><span class="p">(</span><span class="n">plasma_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hypernetted_chain</span><span class="o">.</span><span class="n">hnc_interp</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">k_grid</span><span class="p">,</span> <span class="n">S_ab_grid</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></div>
 
 
     <span class="c1"># The following is required to jit a Model</span>
@@ -5795,75 +5998,137 @@
 
 
 
-<span class="n">_all_models</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">ArbitraryDegeneracyScreeningLength</span><span class="p">,</span>
-    <span class="n">ArkhipovIonFeat</span><span class="p">,</span>
-    <span class="n">AverageAtom_Sii</span><span class="p">,</span>
-    <span class="n">BohmStaver</span><span class="p">,</span>
-    <span class="n">BornMermin</span><span class="p">,</span>
-    <span class="n">BornMermin_Full</span><span class="p">,</span>
-    <span class="n">BornMermin_Fit</span><span class="p">,</span>
-    <span class="n">BornMermin_Fortmann</span><span class="p">,</span>
-    <span class="n">CHSIonFeat</span><span class="p">,</span>
-    <span class="n">ConstantChemPotential</span><span class="p">,</span>
-    <span class="n">ConstantDebyeTemp</span><span class="p">,</span>
-    <span class="n">ConstantIPD</span><span class="p">,</span>
-    <span class="n">ConstantScreeningLength</span><span class="p">,</span>
-    <span class="n">DebyeHueckelIPD</span><span class="p">,</span>
-    <span class="n">DebyeHueckelScreening</span><span class="p">,</span>
-    <span class="n">DebyeHueckelScreeningLength</span><span class="p">,</span>
-    <span class="n">DebyeHueckel_BM_V</span><span class="p">,</span>
-    <span class="n">DebyeWallerSolid</span><span class="p">,</span>
-    <span class="n">DetailedBalance</span><span class="p">,</span>
-    <span class="n">EckerKroellIPD</span><span class="p">,</span>
-    <span class="n">LFCConstant</span><span class="p">,</span>
-    <span class="n">ESLFCDornheim2021</span><span class="p">,</span>
-    <span class="n">SLFCGeldart1966</span><span class="p">,</span>
-    <span class="n">SLFCInterpFortmann2010</span><span class="p">,</span>
-    <span class="n">SLFCInterpGregori2007</span><span class="p">,</span>
-    <span class="n">SLFCUtsumi1982</span><span class="p">,</span>
-    <span class="n">SLFCFarid1993</span><span class="p">,</span>
-    <span class="n">FiniteWavelengthScreening</span><span class="p">,</span>
-    <span class="n">FiniteWavelength_BM_V</span><span class="p">,</span>
-    <span class="n">FixedSii</span><span class="p">,</span>
-    <span class="n">FormFactorLowering</span><span class="p">,</span>
-    <span class="n">Gericke2010ScreeningLength</span><span class="p">,</span>
-    <span class="n">Gregori2003IonFeat</span><span class="p">,</span>
-    <span class="n">Gregori2004Screening</span><span class="p">,</span>
-    <span class="n">GregoriCHSScreening</span><span class="p">,</span>
-    <span class="n">Gregori2006IonFeat</span><span class="p">,</span>
-    <span class="n">IchimaruChemPotential</span><span class="p">,</span>
-    <span class="n">IonSphereIPD</span><span class="p">,</span>
-    <span class="n">LinearResponseScreening</span><span class="p">,</span>
-    <span class="n">LinearResponseScreeningGericke2010</span><span class="p">,</span>
-    <span class="n">Model</span><span class="p">,</span>
-    <span class="n">Neglect</span><span class="p">,</span>
-    <span class="n">OnePotentialHNCIonFeat</span><span class="p">,</span>
-    <span class="n">PauliBlockingIPD</span><span class="p">,</span>
-    <span class="n">PaulingFormFactors</span><span class="p">,</span>
-    <span class="n">PeakCollection</span><span class="p">,</span>
-    <span class="n">QCSalpeterApproximation</span><span class="p">,</span>
-    <span class="n">RPA_DandreaFit</span><span class="p">,</span>
-    <span class="n">RPA</span><span class="p">,</span>
-    <span class="n">ScatteringModel</span><span class="p">,</span>
-    <span class="n">SchumacherImpulse</span><span class="p">,</span>
-    <span class="n">SchumacherImpulseColdEdges</span><span class="p">,</span>
-    <span class="n">SchumacherImpulseFitRk</span><span class="p">,</span>
-    <span class="n">Sum_Sii</span><span class="p">,</span>
-    <span class="n">StewartPyattIPD</span><span class="p">,</span>
-    <span class="n">StewartPyattPrestonIPD</span><span class="p">,</span>
-    <span class="n">SommerfeldChemPotential</span><span class="p">,</span>
-    <span class="n">NonDegenerateElectronChemPotential</span><span class="p">,</span>
-    <span class="n">DegenerateElectronChemPotential</span><span class="p">,</span>
-    <span class="n">ThreePotentialHNCIonFeat</span><span class="p">,</span>
-<span class="p">]</span>
+<span class="c1"># Edge Models</span>
+<span class="c1"># ===========</span>
 
-<span class="k">for</span> <span class="n">_model</span> <span class="ow">in</span> <span class="n">_all_models</span><span class="p">:</span>
-    <span class="n">jax</span><span class="o">.</span><span class="n">tree_util</span><span class="o">.</span><span class="n">register_pytree_node</span><span class="p">(</span>
-        <span class="n">_model</span><span class="p">,</span>
-        <span class="n">_model</span><span class="o">.</span><span class="n">_tree_flatten</span><span class="p">,</span>
-        <span class="n">_model</span><span class="o">.</span><span class="n">_tree_unflatten</span><span class="p">,</span>
-    <span class="p">)</span>
+
+<div class="viewcode-block" id="EdgeModel">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.EdgeModel.html#jaxrts.models.EdgeModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model class for edges as they appear, e.g., in the bound-free DSF.</span>
+<span class="sd">    Edges are implemented as multiplicative, unit-free factors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">allowed_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bf edge&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EdgeModel.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.EdgeModel.evaluate.html#jaxrts.models.EdgeModel.evaluate">[docs]</a>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">edge_energy</span><span class="p">:</span> <span class="n">Quantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the result of the model given a :py:class:`~.PlasmaState` and a</span>
+<span class="sd">        :py:class:`Setup`.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           Compared to the generic :py:meth:`~.Model.evaluate` this method</span>
+<span class="sd">           requires an additional argument, the energy of the edge.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NoEdge">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.NoEdge.html#jaxrts.models.NoEdge">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NoEdge</span><span class="p">(</span><span class="n">EdgeModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    No edge, returns always one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;NoEdge&quot;</span>
+
+<div class="viewcode-block" id="NoEdge.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.NoEdge.evaluate.html#jaxrts.models.NoEdge.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">edge_energy</span><span class="p">:</span> <span class="n">Quantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span>
+            <span class="n">setup</span><span class="o">.</span><span class="n">measured_energy</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">electron_volt</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NonNegative">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.NonNegative.html#jaxrts.models.NonNegative">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NonNegative</span><span class="p">(</span><span class="n">EdgeModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cuts at :py:attr:`jaxrts.setup.Setup.measured_energy` ``= 0 eV``,</span>
+<span class="sd">    independently of the ``edge_energy`` given, so that only energy transfer to</span>
+<span class="sd">    the electrons (down-shifted photon energies) are permitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;NonNegative&quot;</span>
+
+<div class="viewcode-block" id="NonNegative.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.NonNegative.evaluate.html#jaxrts.models.NonNegative.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">edge_energy</span><span class="p">:</span> <span class="n">Quantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">heaviside</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">energy</span> <span class="o">-</span> <span class="n">setup</span><span class="o">.</span><span class="n">measured_energy</span><span class="p">)</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">electron_volt</span><span class="p">),</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Heaviside">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Heaviside.html#jaxrts.models.Heaviside">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Heaviside</span><span class="p">(</span><span class="n">EdgeModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hard cut of the edge at the binding energy, using a Heaviside function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;Heaviside&quot;</span>
+
+<div class="viewcode-block" id="Heaviside.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Heaviside.evaluate.html#jaxrts.models.Heaviside.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">edge_energy</span><span class="p">:</span> <span class="n">Quantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">heaviside</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">energy</span> <span class="o">-</span> <span class="n">setup</span><span class="o">.</span><span class="n">measured_energy</span> <span class="o">-</span> <span class="n">edge_energy</span><span class="p">)</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span>
+                <span class="n">ureg</span><span class="o">.</span><span class="n">electron_volt</span>
+            <span class="p">),</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">dimensionless</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Fermi">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Fermi.html#jaxrts.models.Fermi">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Fermi</span><span class="p">(</span><span class="n">EdgeModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Temperature dependent edge, where the edge is given by a Fermi-Dirac</span>
+<span class="sd">    distribution with a slope dependent on the system&#39;s electron temperature:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">       1-\\frac{1}{e^{\\frac{(\\hbar\\omega-E_{B})}{k_BT_e}}+1}</span>
+
+<span class="sd">    See :cite:`Mattern.2013`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;Fermi&quot;</span>
+
+    <span class="n">cite_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Mattern.2013&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Fermi.evaluate">
+<a class="viewcode-back" href="../../_autosummary/jaxrts.models.Fermi.evaluate.html#jaxrts.models.Fermi.evaluate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">plasma_state</span><span class="p">:</span> <span class="s2">&quot;PlasmaState&quot;</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">edge_energy</span><span class="p">:</span> <span class="n">Quantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">energy_transfer</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">energy</span> <span class="o">-</span> <span class="n">setup</span><span class="o">.</span><span class="n">measured_energy</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">plasma_state</span><span class="o">.</span><span class="n">T_e</span> <span class="o">*</span> <span class="n">ureg</span><span class="o">.</span><span class="n">boltzmann_constant</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">jnpu</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">beta</span> <span class="o">*</span> <span class="p">(</span><span class="n">energy_transfer</span> <span class="o">-</span> <span class="n">edge_energy</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

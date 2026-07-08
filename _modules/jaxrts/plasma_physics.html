@@ -46,7 +46,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
@@ -54,6 +54,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../development.html">Development and Poetry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_overview.html">The <code class="docutils literal notranslate"><span class="pre">jaxrts</span></code> module</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jaxrts/jaxrts">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://doi.org/10.1016/j.cpc.2026.110173">The Paper</a></li>
 </ul>
 
         </div>
@@ -601,63 +606,6 @@
     <span class="n">Vee</span> <span class="o">=</span> <span class="n">coulomb_potential_fourier</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">epsilon</span><span class="p">)</span> <span class="o">/</span> <span class="n">Vee</span></div>
 
-
-
-<div class="viewcode-block" id="calculate_mean_free_charge_more">
-<a class="viewcode-back" href="../../_autosummary/jaxrts.plasma_physics.calculate_mean_free_charge_more.html#jaxrts.plasma_physics.calculate_mean_free_charge_more">[docs]</a>
-<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_mean_free_charge_more</span><span class="p">(</span>
-    <span class="n">rho</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">m_A</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">Z_A</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">T_e</span><span class="p">:</span> <span class="n">Quantity</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Finite Temperature Thomas Fermi Charge State using an analytical fit</span>
-<span class="sd">    provided by :cite:`More.1985` p. 332 (Table IV).</span>
-
-<span class="sd">    .. note::</span>
-
-<span class="sd">        This fit is only applicable to a OCP.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rho : Quantity</span>
-<span class="sd">        Mass density in [mass]/[length]**3</span>
-<span class="sd">    m_A: Quantity</span>
-<span class="sd">        Atomic mass</span>
-<span class="sd">    Z_A:</span>
-<span class="sd">        Atomic Charge number</span>
-<span class="sd">    T_e : Quantity</span>
-<span class="sd">        Electron temperature in [K]</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Z_f : Quantity</span>
-<span class="sd">        The mean free charge of the ions in the OCP</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">14.3139</span>
-    <span class="n">beta</span> <span class="o">=</span> <span class="mf">0.6624</span>
-    <span class="n">a1</span> <span class="o">=</span> <span class="mf">0.003323</span>
-    <span class="n">a2</span> <span class="o">=</span> <span class="mf">0.9718</span>
-    <span class="n">a3</span> <span class="o">=</span> <span class="mf">9.26148e-5</span>
-    <span class="n">a4</span> <span class="o">=</span> <span class="mf">3.10165</span>
-    <span class="n">b0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.7630</span>
-    <span class="n">b1</span> <span class="o">=</span> <span class="mf">1.43175</span>
-    <span class="n">b2</span> <span class="o">=</span> <span class="mf">0.31546</span>
-    <span class="n">c1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.366667</span>
-    <span class="n">c2</span> <span class="o">=</span> <span class="mf">0.983333</span>
-
-    <span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">gram</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">cc</span><span class="p">)</span> <span class="o">/</span> <span class="n">m_A</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">u</span><span class="p">))</span> <span class="o">/</span> <span class="n">Z_A</span>
-    <span class="n">T0</span> <span class="o">=</span> <span class="n">T_e</span><span class="o">.</span><span class="n">m_as</span><span class="p">(</span><span class="n">ureg</span><span class="o">.</span><span class="n">eV</span> <span class="o">/</span> <span class="n">ureg</span><span class="o">.</span><span class="n">k_B</span><span class="p">)</span> <span class="o">/</span> <span class="n">Z_A</span> <span class="o">**</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
-    <span class="n">Tf</span> <span class="o">=</span> <span class="n">T0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">T0</span><span class="p">)</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">T0</span><span class="o">**</span><span class="n">a2</span> <span class="o">+</span> <span class="n">a3</span> <span class="o">*</span> <span class="n">T0</span><span class="o">**</span><span class="n">a4</span>
-    <span class="n">B</span> <span class="o">=</span> <span class="o">-</span><span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">b0</span> <span class="o">+</span> <span class="n">b1</span> <span class="o">*</span> <span class="n">Tf</span> <span class="o">+</span> <span class="n">b2</span> <span class="o">*</span> <span class="n">Tf</span><span class="o">**</span><span class="mi">7</span><span class="p">)</span>
-    <span class="n">C</span> <span class="o">=</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">Tf</span> <span class="o">+</span> <span class="n">c2</span>
-    <span class="n">Q1</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">R</span><span class="o">**</span><span class="n">B</span>
-    <span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="o">**</span><span class="n">C</span> <span class="o">+</span> <span class="n">Q1</span><span class="o">**</span><span class="n">C</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">C</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">Q</span><span class="o">**</span><span class="n">beta</span>
-
-    <span class="k">return</span> <span class="n">Z_A</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">x</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span></div>
 
 </pre></div>
 

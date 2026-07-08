@@ -169,6 +169,23 @@ bound-free scattering examples
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="This example showcases different edge-models that can be used in the bound free scattering feat...">
+
+.. only:: html
+
+  .. image:: /gen_examples/bound_free/images/thumb/sphx_glr_plot_edge_models_thumb.svg
+    :alt:
+
+  :ref:`sphx_glr_gen_examples_bound_free_plot_edge_models.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Comparison of different edge models</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="This script is used to test the bound-free edges using ionization energies from FAC code calcul...">
 
 .. only:: html
@@ -734,8 +751,8 @@ Ionic scattering examples
 
     </div>
 
-Saha Examples
--------------
+Ionization examples
+-------------------
 
 
 
@@ -750,10 +767,10 @@ Saha Examples
 
 .. only:: html
 
-  .. image:: /gen_examples/saha/images/thumb/sphx_glr_plot_WR_expanded_ionization_thumb.svg
+  .. image:: /gen_examples/ionization/images/thumb/sphx_glr_plot_WR_expanded_ionization_thumb.svg
     :alt:
 
-  :ref:`sphx_glr_gen_examples_saha_plot_WR_expanded_ionization.py`
+  :ref:`sphx_glr_gen_examples_ionization_plot_WR_expanded_ionization.py`
 
 .. raw:: html
 
@@ -767,14 +784,31 @@ Saha Examples
 
 .. only:: html
 
-  .. image:: /gen_examples/saha/images/thumb/sphx_glr_plot_saha_hot_jupiter_thumb.svg
+  .. image:: /gen_examples/ionization/images/thumb/sphx_glr_plot_saha_hot_jupiter_thumb.svg
     :alt:
 
-  :ref:`sphx_glr_gen_examples_saha_plot_saha_hot_jupiter.py`
+  :ref:`sphx_glr_gen_examples_ionization_plot_saha_hot_jupiter.py`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Saha equation for hot jupiter materials</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the ionization state of a CH plasma as a two-dimensional quantity over tempe...">
+
+.. only:: html
+
+  .. image:: /gen_examples/ionization/images/thumb/sphx_glr_plot_saha_ionization_map_thumb.svg
+    :alt:
+
+  :ref:`sphx_glr_gen_examples_ionization_plot_saha_ionization_map.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Saha Ionization Map</div>
     </div>
 
 
@@ -910,7 +944,7 @@ Utility tool examples
    /gen_examples/free_bound/index.rst
    /gen_examples/free_free/index.rst
    /gen_examples/ionic/index.rst
-   /gen_examples/saha/index.rst
+   /gen_examples/ionization/index.rst
    /gen_examples/setup/index.rst
    /gen_examples/utils/index.rst
 

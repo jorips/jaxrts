@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight" href="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight.html" />
-    <link rel="prev" title="jaxrts.experimental.SiiNN.NNModel.norm_k_over_qk" href="jaxrts.experimental.SiiNN.NNModel.norm_k_over_qk.html" /> 
+    <link rel="prev" title="jaxrts.experimental.SiiNN.NNModelExpandedZ.norm_k" href="jaxrts.experimental.SiiNN.NNModelExpandedZ.norm_k.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installing.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
@@ -62,6 +62,7 @@
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.absorption_edges_ionized_ions_data.html">jaxrts.absorption_edges_ionized_ions_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.analysis.html">jaxrts.analysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.bound_free.html">jaxrts.bound_free</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jaxrts.collections.html">jaxrts.collections</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.ee_localfieldcorrections.html">jaxrts.ee_localfieldcorrections</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.ee_localfieldcorrections_dornheim_2021.html">jaxrts.ee_localfieldcorrections_dornheim_2021</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.elements.html">jaxrts.elements</a></li>
@@ -77,13 +78,13 @@
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.hypernetted_chain.html">jaxrts.hypernetted_chain</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.instrument_function.html">jaxrts.instrument_function</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.ion_feature.html">jaxrts.ion_feature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jaxrts.ionization.html">jaxrts.ionization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.ipd.html">jaxrts.ipd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.literature.html">jaxrts.literature</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.math.html">jaxrts.math</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.models.html">jaxrts.models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.plasma_physics.html">jaxrts.plasma_physics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.plasmastate.html">jaxrts.plasmastate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="jaxrts.saha.html">jaxrts.saha</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.saving.html">jaxrts.saving</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.setup.html">jaxrts.setup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="jaxrts.static_structure_factors.html">jaxrts.static_structure_factors</a></li>
@@ -92,6 +93,11 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/jaxrts/jaxrts">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://doi.org/10.1016/j.cpc.2026.110173">The Paper</a></li>
 </ul>
 
         </div>
@@ -129,13 +135,6 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">jaxrts.experimental.SiiNN.</span></span><span class="sig-name descname"><span class="pre">NNSiiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/jaxrts/experimental/SiiNN.html#NNSiiModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#jaxrts.experimental.SiiNN.NNSiiModel" title="Link to this definition"></a></dt>
 <dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">jaxrts.model.IonFeatModel</span></code> to use a neural network to obtain
 ion-ion static structure factors.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is a parent class that, in itself, has no practical application, as
-it defines no <a class="reference internal" href="jaxrts.models.IonFeatModel.S_ii.html#jaxrts.models.IonFeatModel.S_ii" title="jaxrts.models.IonFeatModel.S_ii"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jaxrts.models.IonFeatModel.S_ii()</span></code></a> method.
-This class only handles loading the neural network from an
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">orbax</span></code> checkpoint.</p>
-</div>
 <p>Initialize the NNSiiModel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -146,16 +145,22 @@ This class only handles loading the neural network from an
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight.html#jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight" title="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rayleigh_weight</span></code></a>(plasma_state, setup)</p></td>
-<td><p>This is the result from Wünsch <span id="id1">[<a class="reference internal" href="../bibliography.html#id99" title="Kathrin Wünsch. Theory of X-ray Thomson scattering in warm dense matter. PhD thesis, University of Warwick, Warwick, 2011.">Wünsch, 2011</a>]</span>, to calculate the Rayleigh weight for a plasma from multiple species.</p></td>
+<td><p>This is the result from Wünsch <span id="id1">[<a class="reference internal" href="../bibliography.html#id105" title="Kathrin Wünsch. Theory of X-ray Thomson scattering in warm dense matter. PhD thesis, University of Warwick, Warwick, 2011.">Wünsch, 2011</a>]</span>, to calculate the Rayleigh weight for a plasma from multiple species.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.S_ii.html#jaxrts.experimental.SiiNN.NNSiiModel.S_ii" title="jaxrts.experimental.SiiNN.NNSiiModel.S_ii"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S_ii</span></code></a>(plasma_state, setup)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.__init__.html#jaxrts.experimental.SiiNN.NNSiiModel.__init__" title="jaxrts.experimental.SiiNN.NNSiiModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(checkpoint_dir)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid.html#jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid" title="jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S_ii_on_grid</span></code></a>(plasma_state)</p></td>
+<td><p>For <cite>py:class:jaxrts.models.IonFeatModel</cite> that internally calculate S_ii a k-grid independently of the probe setup (e.g. HNC-based models) this method should return (k_grid, S_ab_grid).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.__init__.html#jaxrts.experimental.SiiNN.NNSiiModel.__init__" title="jaxrts.experimental.SiiNN.NNSiiModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(checkpoint_dir)</p></td>
 <td><p>Initialize the NNSiiModel.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.check.html#jaxrts.experimental.SiiNN.NNSiiModel.check" title="jaxrts.experimental.SiiNN.NNSiiModel.check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check</span></code></a>(plasma_state)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.check.html#jaxrts.experimental.SiiNN.NNSiiModel.check" title="jaxrts.experimental.SiiNN.NNSiiModel.check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check</span></code></a>(plasma_state)</p></td>
 <td><p>Test if the model is applicable to the PlasmaState.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.check_supports_S_ii_grid.html#jaxrts.experimental.SiiNN.NNSiiModel.check_supports_S_ii_grid" title="jaxrts.experimental.SiiNN.NNSiiModel.check_supports_S_ii_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_supports_S_ii_grid</span></code></a>(plasma_state)</p></td>
+<td><p>Whether <a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid.html#jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid" title="jaxrts.experimental.SiiNN.NNSiiModel.S_ii_on_grid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">S_ii_on_grid()</span></code></a> can be used for this model, given the current plasma_state.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.citation.html#jaxrts.experimental.SiiNN.NNSiiModel.citation" title="jaxrts.experimental.SiiNN.NNSiiModel.citation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">citation</span></code></a>([style, comment])</p></td>
 <td><p>Return bibliographic information for the Model used.</p></td>
@@ -177,6 +182,9 @@ This class only handles loading the neural network from an
 <tr class="row-even"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.cite_keys.html#jaxrts.experimental.SiiNN.NNSiiModel.cite_keys" title="jaxrts.experimental.SiiNN.NNSiiModel.cite_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cite_keys</span></code></a></p></td>
 <td><p>A list of bibtex keys.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="jaxrts.experimental.SiiNN.NNSiiModel.supports_S_ii_grid.html#jaxrts.experimental.SiiNN.NNSiiModel.supports_S_ii_grid" title="jaxrts.experimental.SiiNN.NNSiiModel.supports_S_ii_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supports_S_ii_grid</span></code></a></p></td>
+<td><p>HNC type models calculate the SSF on a k grid, and then interpolate to the scattering vector of the setup class.</p></td>
+</tr>
 </tbody>
 </table>
 <span class="target" id="sphx-glr-backref-jaxrts-experimental-siinn-nnsiimodel"></span></dd></dl>
@@ -187,7 +195,7 @@ This class only handles loading the neural network from an
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="jaxrts.experimental.SiiNN.NNModel.norm_k_over_qk.html" class="btn btn-neutral float-left" title="jaxrts.experimental.SiiNN.NNModel.norm_k_over_qk" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="jaxrts.experimental.SiiNN.NNModelExpandedZ.norm_k.html" class="btn btn-neutral float-left" title="jaxrts.experimental.SiiNN.NNModelExpandedZ.norm_k" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight.html" class="btn btn-neutral float-right" title="jaxrts.experimental.SiiNN.NNSiiModel.Rayleigh_weight" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

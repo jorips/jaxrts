@@ -30,6 +30,7 @@
    absorption_edges_ionized_ions_data
    analysis
    bound_free
+   collections
    ee_localfieldcorrections
    ee_localfieldcorrections_dornheim_2021
    elements
@@ -42,13 +43,13 @@
    hypernetted_chain
    instrument_function
    ion_feature
+   ionization
    ipd
    literature
    math
    models
    plasma_physics
    plasmastate
-   saha
    saving
    setup
    static_structure_factors
